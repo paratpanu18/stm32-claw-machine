@@ -45,8 +45,9 @@
 const uint8_t TARGET_COIN_AMOUNT = 10;
 const uint8_t COIN_VALUE = 5;
 const uint8_t WAIT_COIN_TIME_LIMIT = 10;
+const uint8_t WAIT_GAME_TIME_STATE = 30;
 uint8_t currentCoinAmount = 0;
-uint8_t STATE = IDLE;
+uint8_t STATE = GAME;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -120,7 +121,10 @@ int main(void)
   MX_USART3_UART_Init();
   MX_TIM2_Init();
   MX_SPI5_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
   ili9341 = ILI9341_Init(
   	&hspi5,
   	CS_GPIO_Port,
@@ -146,52 +150,6 @@ int main(void)
     /* USER CODE BEGIN 3 */
 //	  ILI9341_FillScreen(&ili9341, ILI9341_COLOR_RED);
 
-	  const uint8_t joystickUp = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_13);
-	  const uint8_t joystickDown = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_9);
-	  const uint8_t joystickLeft = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_11);
-	  const uint8_t joystickRight = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_14);
-
-	  transmitStringUART("Up = %d | Down = %d | Left = %d | Right = %d \r\n", joystickUp, joystickDown, joystickLeft, joystickRight);
-
-
-	  if (!joystickLeft) {
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
-		  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 1);
-	  }
-	  else if (!joystickRight) {
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 1);
-		  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
-	  }
-	  else {
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
-		  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
-	  }
-
-	  if (!joystickUp) {
-		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 1);
-		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
-	  }
-	  else if (!joystickDown) {
-		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
-		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 1);
-	  }
-	  else {
-		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
-		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
-	  }
-	  continue;
-
-
-
-
-
-
-
-
-
-
-
-
 	  renderPage(STATE);
 
 	  if (STATE == IDLE) {
@@ -205,7 +163,7 @@ int main(void)
 		  }
 	  }
 	  else if (STATE == WAIT_COIN) {
-		  if (currentCoinAmount == TARGET_COIN_AMOUNT) {
+		  if (currentCoinAmount >= TARGET_COIN_AMOUNT) {
 
 			  HAL_TIM_Base_Stop_IT(&htim2);
 			  currentCoinAmount = 0;
@@ -217,7 +175,68 @@ int main(void)
 		  }
 	  }
 	  else if (STATE == GAME) {
+		  HAL_TIM_Base_Start_IT(&htim2);
+		  const uint8_t joystickUp = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_13);
+		  const uint8_t joystickDown = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_9);
+		  const uint8_t joystickLeft = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_11);
+		  const uint8_t joystickRight = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_14);
 
+	//	  transmitStringUART("Up = %d | Down = %d | Left = %d | Right = %d \r\n", joystickUp, joystickDown, joystickLeft, joystickRight);
+
+
+		  if (!joystickLeft) {
+			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
+			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 1);
+		  }
+		  else if (!joystickRight) {
+			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 1);
+			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+		  }
+		  else {
+			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
+			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+		  }
+
+		  if (!joystickUp) {
+			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 1);
+			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+		  }
+		  else if (!joystickDown) {
+			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
+			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 1);
+		  }
+		  else {
+			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
+			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+		  }
+		  continue;
+	  }
+	  else if (STATE == DEPOSIT){
+		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
+		  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
+		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+
+
+		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_RESET);
+
+		  HAL_Delay(6500);
+
+		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, GPIO_PIN_SET);
+
+		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_SET);
+
+		  HAL_Delay(6500);
+
+		  //Positioning
+
+		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, GPIO_PIN_RESET);
+		  STATE = GAME;
+		  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
 	  }
   }
   /* USER CODE END 3 */
@@ -309,8 +328,21 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			STATE = GAME;
 			transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
 		}
+
+//		if (STATE == GAME){
+//			STATE = DEPOSIT;
+//			transmitStringUART("State changed to %s from EXTI_9\r\n", stateNames[STATE]);
+//		}
 	}
+//	else if (GPIO_Pin == GPIO_PIN_10){
+//		if (STATE == GAME){
+//			STATE = DEPOSIT;
+//			transmitStringUART("State changed to %s from EXTI_10\r\n", stateNames[STATE]);
+//		}
+//	}
 }
+
+
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	static int timeCount = 0;
@@ -324,6 +356,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 				transmitStringUART("WAIT_COIN exceeded %d seconds | State changed to %s\r\n", WAIT_COIN_TIME_LIMIT, stateNames[STATE]);
 			}
 		}
+
+//		if (STATE == GAME) {
+//			timeCount++;
+//			timeCount%=31;
+//			if(timeCount >= WAIT_GAME_TIME_STATE){
+//				STATE = DEPOSIT;
+//				transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
+//			}
+//
+//		}
+
 	}
 }
 

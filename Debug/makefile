@@ -34,34 +34,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := ProjectCoin
+BUILD_ARTIFACT_NAME := stm32-claw-machine
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-ProjectCoin.elf \
+stm32-claw-machine.elf \
 
 MAP_FILES += \
-ProjectCoin.map \
+stm32-claw-machine.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-ProjectCoin.list \
+stm32-claw-machine.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: ProjectCoin.elf secondary-outputs
+main-build: stm32-claw-machine.elf secondary-outputs
 
 # Tool invocations
-ProjectCoin.elf ProjectCoin.map: $(OBJS) $(USER_OBJS) C:\Users\parat\Downloads\ProjectCoin\STM32F767ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "ProjectCoin.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\parat\Downloads\ProjectCoin\STM32F767ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ProjectCoin.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+stm32-claw-machine.elf stm32-claw-machine.map: $(OBJS) $(USER_OBJS) C:\Users\ACER\Desktop\work\Y3_1\MAD\misc\project_files\stm32-claw-machine\STM32F767ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "stm32-claw-machine.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\ACER\Desktop\work\Y3_1\MAD\misc\project_files\stm32-claw-machine\STM32F767ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-claw-machine.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -70,14 +70,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-ProjectCoin.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "ProjectCoin.list"
+stm32-claw-machine.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "stm32-claw-machine.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) ProjectCoin.elf ProjectCoin.list ProjectCoin.map default.size.stdout
+	-$(RM) default.size.stdout stm32-claw-machine.elf stm32-claw-machine.list stm32-claw-machine.map
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
