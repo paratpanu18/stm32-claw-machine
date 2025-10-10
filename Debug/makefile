@@ -60,8 +60,8 @@ all: main-build
 main-build: stm32-claw-machine.elf secondary-outputs
 
 # Tool invocations
-stm32-claw-machine.elf stm32-claw-machine.map: $(OBJS) $(USER_OBJS) C:\Users\ACER\Desktop\work\Y3_1\MAD\misc\project_files\stm32-claw-machine\STM32F767ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "stm32-claw-machine.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\ACER\Desktop\work\Y3_1\MAD\misc\project_files\stm32-claw-machine\STM32F767ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-claw-machine.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+stm32-claw-machine.elf stm32-claw-machine.map: $(OBJS) $(USER_OBJS) C:\Users\parat\CE\stm32-claw-machine\STM32F767ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "stm32-claw-machine.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\parat\CE\stm32-claw-machine\STM32F767ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-claw-machine.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -48,6 +48,11 @@ const uint8_t WAIT_COIN_TIME_LIMIT = 10;
 const uint8_t WAIT_GAME_TIME_STATE = 30;
 uint8_t currentCoinAmount = 0;
 uint8_t STATE = GAME;
+
+
+static float posX = 0;
+static float posY = 0;
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -79,6 +84,30 @@ void motorStop() {
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
 }
 
+void home() {
+	posX *= 1.0;
+	posY *= 1.0;
+	while (posX > 0) {
+		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 1);
+		  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+		  posX -= 1;
+		  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
+	}
+	 HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
+	 HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+
+	while (posY > 0) {
+		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 1);
+		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+		  posY -= 1;
+		  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
+	}
+	  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
+	  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+
+	  posX = 0.0f;
+	  posY = 0.0f;
+}
 
 
 
@@ -150,6 +179,22 @@ int main(void)
     /* USER CODE BEGIN 3 */
 //	  ILI9341_FillScreen(&ili9341, ILI9341_COLOR_RED);
 
+
+
+//	  transmitStringUART("Button: %d\r\n", );
+
+	  if (HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_13) == 0) {
+		  if (STATE == WAIT_CONFIRM) {
+			  STATE = GAME;
+			  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
+		  }
+		  else if (STATE == GAME) {
+			  STATE = DEPOSIT;
+			  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
+		  }
+	  }
+
+
 	  renderPage(STATE);
 
 	  if (STATE == IDLE) {
@@ -187,10 +232,14 @@ int main(void)
 		  if (!joystickLeft) {
 			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
 			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 1);
+			  posX += 1;
+			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else if (!joystickRight) {
 			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 1);
 			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+			  posX -= 1;
+			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else {
 			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
@@ -200,18 +249,25 @@ int main(void)
 		  if (!joystickUp) {
 			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 1);
 			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+			  posY -= 1;
+			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else if (!joystickDown) {
 			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
 			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 1);
+			  posY += 1;
+			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else {
 			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
 			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
 		  }
+//		  transmitStringUART("Position (%d, %d)\r\n", posX, posY);
 		  continue;
 	  }
 	  else if (STATE == DEPOSIT){
+		  transmitStringUART("Hello from Deposit state: STOP`");
+
 		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
 		  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
 		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
@@ -221,7 +277,7 @@ int main(void)
 		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_SET);
 		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_RESET);
 
-		  HAL_Delay(6500);
+		  HAL_Delay(4500);
 
 		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, GPIO_PIN_SET);
 
@@ -231,9 +287,12 @@ int main(void)
 		  HAL_Delay(6500);
 
 		  //Positioning
+		  home();
 
 		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_RESET);
 		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_RESET);
+
+
 		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, GPIO_PIN_RESET);
 		  STATE = GAME;
 		  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
@@ -315,16 +374,20 @@ void transmitStringUART(const char* format, ...){
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+	transmitStringUART("GPIO: %d\r\n", GPIO_Pin);
 	if (GPIO_Pin == GPIO_PIN_8)
 	{
+		transmitStringUART("It's fucking interupt blahblah\r\n");
 		if (STATE == IDLE || STATE == WAIT_COIN){
 			currentCoinAmount += COIN_VALUE;
 			transmitStringUART("Coin Detected | Current Coin Amount: %d\r\n", currentCoinAmount);
 		}
 	}
-	else if (GPIO_Pin == GPIO_PIN_9)
+	else if (GPIO_Pin == GPIO_PIN_5)
 	{
+		transmitStringUART("It's fucking interupt\r\n");
 		if (STATE == WAIT_CONFIRM){
+			transmitStringUART("Print from here\r\n");
 			STATE = GAME;
 			transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
 		}
@@ -333,6 +396,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 //			STATE = DEPOSIT;
 //			transmitStringUART("State changed to %s from EXTI_9\r\n", stateNames[STATE]);
 //		}
+	}
+	else if (GPIO_Pin == GPIO_PIN_13) {
+		transmitStringUART("Interupt from EXTI13\r\n");
 	}
 //	else if (GPIO_Pin == GPIO_PIN_10){
 //		if (STATE == GAME){
