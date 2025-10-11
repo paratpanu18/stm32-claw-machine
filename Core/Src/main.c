@@ -162,7 +162,7 @@ int main(void)
   	DC_Pin,
   	RESET_GPIO_Port,
   	RESET_Pin,
-  	ILI9341_ROTATION_HORIZONTAL_1,
+  	ILI9341_ROTATION_HORIZONTAL_2,
   	320,
   	240
   );
