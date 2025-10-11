@@ -47,7 +47,7 @@ const uint8_t COIN_VALUE = 5;
 const uint8_t WAIT_COIN_TIME_LIMIT = 10;
 const uint8_t WAIT_GAME_TIME_STATE = 30;
 uint8_t currentCoinAmount = 0;
-uint8_t STATE = GAME;
+uint8_t STATE = IDLE;
 
 
 static float posX = 0;
@@ -214,7 +214,7 @@ int main(void)
 			  currentCoinAmount = 0;
 			  __HAL_TIM_SET_COUNTER(&htim2, 0);
 
-			  STATE = WAIT_CONFIRM;
+			  STATE = GAME;
 			  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
 
 		  }
@@ -294,7 +294,7 @@ int main(void)
 
 
 		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, GPIO_PIN_RESET);
-		  STATE = GAME;
+		  STATE = IDLE;
 		  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
 	  }
   }
@@ -423,15 +423,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 			}
 		}
 
-//		if (STATE == GAME) {
-//			timeCount++;
-//			timeCount%=31;
-//			if(timeCount >= WAIT_GAME_TIME_STATE){
-//				STATE = DEPOSIT;
-//				transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
-//			}
-//
-//		}
+
+		if (STATE == GAME) {
+			timeCount++;
+			timeCount%=31;
+			if(timeCount >= WAIT_GAME_TIME_STATE){
+				STATE = DEPOSIT;
+				transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
+			}
+
+		}
 
 	}
 }

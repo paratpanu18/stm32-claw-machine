@@ -4,5 +4,5 @@
 ../Core/Src/main.c:308:6:SystemClock_Config	4
 ../Core/Src/main.c:364:6:transmitStringUART	1
 ../Core/Src/main.c:375:6:HAL_GPIO_EXTI_Callback	7
-../Core/Src/main.c:413:6:HAL_TIM_PeriodElapsedCallback	4
-../Core/Src/main.c:445:6:Error_Handler	1
+../Core/Src/main.c:413:6:HAL_TIM_PeriodElapsedCallback	6
+../Core/Src/main.c:446:6:Error_Handler	1
