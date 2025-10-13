@@ -87,6 +87,8 @@ void Error_Handler(void);
 #define JoystickUp_GPIO_Port GPIOF
 #define JoystickRight_Pin GPIO_PIN_14
 #define JoystickRight_GPIO_Port GPIOF
+#define CornerY_Pin GPIO_PIN_0
+#define CornerY_GPIO_Port GPIOG
 #define JoystickDown_Pin GPIO_PIN_9
 #define JoystickDown_GPIO_Port GPIOE
 #define JoystickLeft_Pin GPIO_PIN_11
@@ -105,6 +107,8 @@ void Error_Handler(void);
 #define DC_GPIO_Port GPIOC
 #define RESET_Pin GPIO_PIN_10
 #define RESET_GPIO_Port GPIOC
+#define CornerX_Pin GPIO_PIN_1
+#define CornerX_GPIO_Port GPIOD
 #define LD2_Pin GPIO_PIN_7
 #define LD2_GPIO_Port GPIOB
 #define Coin_Pin GPIO_PIN_8

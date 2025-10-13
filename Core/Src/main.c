@@ -109,7 +109,8 @@ void home() {
 	  posY = 0.0f;
 }
 
-
+void playBuzzer(uint16_t duration);
+void playRefereeBuzzer();
 
 /* USER CODE END PFP */
 
@@ -171,7 +172,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
+  HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
   transmitStringUART("Program started. Current State: %s\r\n", stateNames[STATE]);
   while (1)
   {
@@ -188,10 +189,12 @@ int main(void)
 		  if (STATE == WAIT_CONFIRM) {
 			  STATE = GAME;
 			  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
+			  playBuzzer(100);
 		  }
 		  else if (STATE == GAME) {
 			  STATE = DEPOSIT;
 			  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
+			  playRefereeBuzzer();
 		  }
 	  }
 
@@ -210,6 +213,11 @@ int main(void)
 	  }
 	  else if (STATE == WAIT_COIN) {
 		  if (currentCoinAmount >= TARGET_COIN_AMOUNT) {
+
+			  for (int i = 0; i < 3; i++){
+				  playBuzzer(100);
+				  HAL_Delay(100);
+			  }
 
 			  HAL_TIM_Base_Stop_IT(&htim2);
 			  currentCoinAmount = 0;
@@ -403,38 +411,27 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	transmitStringUART("GPIO: %d\r\n", GPIO_Pin);
 	if (GPIO_Pin == GPIO_PIN_8)
 	{
-		transmitStringUART("It's fucking interupt blahblah\r\n");
 		if (STATE == IDLE || STATE == WAIT_COIN){
 			currentCoinAmount += COIN_VALUE;
 			transmitStringUART("Coin Detected | Current Coin Amount: %d\r\n", currentCoinAmount);
+			playBuzzer(100);
 		}
 	}
-	else if (GPIO_Pin == GPIO_PIN_5)
-	{
-		transmitStringUART("It's fucking interupt\r\n");
-		if (STATE == WAIT_CONFIRM){
-			transmitStringUART("Print from here\r\n");
-			STATE = GAME;
-			transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
-		}
-
-//		if (STATE == GAME){
-//			STATE = DEPOSIT;
-//			transmitStringUART("State changed to %s from EXTI_9\r\n", stateNames[STATE]);
-//		}
-	}
-	else if (GPIO_Pin == GPIO_PIN_13) {
-		transmitStringUART("Interupt from EXTI13\r\n");
-	}
-//	else if (GPIO_Pin == GPIO_PIN_10){
-//		if (STATE == GAME){
-//			STATE = DEPOSIT;
-//			transmitStringUART("State changed to %s from EXTI_10\r\n", stateNames[STATE]);
-//		}
-//	}
 }
 
+void playBuzzer(uint16_t duration){
+	HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
+	HAL_Delay(duration);
+	HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
+}
 
+void playRefereeBuzzer(){
+	playBuzzer(150);
+	HAL_Delay(300);
+	playBuzzer(150);
+	HAL_Delay(300);
+	playBuzzer(1500);
+}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	static int timeCount = 0;
@@ -446,6 +443,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 				currentCoinAmount = 0;
 				STATE = IDLE;
 				transmitStringUART("WAIT_COIN exceeded %d seconds | State changed to %s\r\n", WAIT_COIN_TIME_LIMIT, stateNames[STATE]);
+				playBuzzer(500);
 			}
 		}
 
@@ -456,6 +454,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 			if(timeCount >= WAIT_GAME_TIME_STATE){
 				STATE = DEPOSIT;
 				transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
+				playRefereeBuzzer();
 			}
 
 		}
