@@ -79,34 +79,49 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void transmitStringUART(const char* format, ...);
 
-void motorStop() {
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
-	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
-}
-
 void home() {
-	posX *= 1.0;
-	posY *= 1.0;
-	while (posX > 0) {
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 1);
-		  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
-		  posX -= 1;
-		  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
+//	posX *= 1.0;
+//	posY *= 1.0;
+//	while (posX > 0) {
+//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 1);
+//		  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+//		  posX -= 1;
+//		  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
+//	}
+//	 HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
+//	 HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+//
+//	while (posY > 0) {
+//		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 1);
+//		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+//		  posY -= 1;
+//		  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
+//	}
+//	  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
+//	  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+//
+//	  posX = 0.0f;
+//	  posY = 0.0f;
+	while (HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin)) {
+//		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
+		HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 1);
+		HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
+//		if (HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin)) break;
 	}
-	 HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
-	 HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
 
-	while (posY > 0) {
-		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 1);
-		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
-		  posY -= 1;
-		  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
+	HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 0);
+	HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
+
+	while (HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin)) {
+//		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
+		HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 1);
+		HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
 	}
-	  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
-	  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+	HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
+	HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
 
-	  posX = 0.0f;
-	  posY = 0.0f;
+	transmitStringUART("Homing Complete");
+
 }
 
 void playBuzzer(uint16_t duration);
@@ -174,6 +189,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
   transmitStringUART("Program started. Current State: %s\r\n", stateNames[STATE]);
+  home();
   while (1)
   {
     /* USER CODE END WHILE */
@@ -185,6 +201,7 @@ int main(void)
 
 //	  transmitStringUART("Button: %d\r\n", );
 
+	  transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
 	  if (HAL_GPIO_ReadPin(Btn_GPIO_Port, Btn_Pin) == 0) {
 		  if (STATE == WAIT_CONFIRM) {
 			  STATE = GAME;
@@ -239,78 +256,47 @@ int main(void)
 
 
 		  if (!joystickLeft) {
-//			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
-//			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 1);
 			  HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
 			  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 1);
-			  posX += 1;
-			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else if (!joystickRight) {
-//			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 1);
-//			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
 			  HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 1);
 			  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
-			  posX -= 1;
-			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else {
-//			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
-//			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
 			  HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
 			  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
 		  }
 
 		  if (!joystickUp) {
-//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 1);
-//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
 			  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 1);
 			  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
-			  posY -= 1;
-			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else if (!joystickDown) {
-//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
-//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 1);
 			  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 0);
 			  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 1);
-			  posY += 1;
-			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else {
-//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
-//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
 			  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 0);
 			  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 		  }
-//		  transmitStringUART("Position (%d, %d)\r\n", posX, posY);
-		  continue;
 	  }
 	  else if (STATE == DEPOSIT){
 		  transmitStringUART("Hello from Deposit state: STOP`");
 
-//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
-//		  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
-//		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
-//		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
 		  HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
 		  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 
 		  // Move Z
-//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_SET);
-//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_RESET);
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 1);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
 
 		  HAL_Delay(4000);
 
-//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, GPIO_PIN_SET);
 		  HAL_GPIO_WritePin(Claw_GPIO_Port, Claw_Pin, 1);
 
-//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_RESET);
-//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_SET);
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 1);
 
@@ -319,12 +305,9 @@ int main(void)
 		  //Positioning
 		  home();
 
-//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_RESET);
-//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_RESET);
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
 
-//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, GPIO_PIN_RESET);
 		  HAL_GPIO_WritePin(Claw_GPIO_Port, Claw_Pin, 0);
 
 		  STATE = IDLE;
