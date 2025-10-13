@@ -151,9 +151,10 @@ int main(void)
   MX_TIM2_Init();
   MX_SPI5_Init();
   MX_TIM3_Init();
+  MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_2);
   ili9341 = ILI9341_Init(
   	&hspi5,
   	CS_GPIO_Port,
@@ -183,7 +184,7 @@ int main(void)
 
 //	  transmitStringUART("Button: %d\r\n", );
 
-	  if (HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_13) == 0) {
+	  if (HAL_GPIO_ReadPin(Btn_GPIO_Port, Btn_Pin) == 0) {
 		  if (STATE == WAIT_CONFIRM) {
 			  STATE = GAME;
 			  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
@@ -221,46 +222,58 @@ int main(void)
 	  }
 	  else if (STATE == GAME) {
 		  HAL_TIM_Base_Start_IT(&htim2);
-		  const uint8_t joystickUp = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_13);
-		  const uint8_t joystickDown = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_9);
-		  const uint8_t joystickLeft = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_11);
-		  const uint8_t joystickRight = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_14);
+		  const uint8_t joystickUp = HAL_GPIO_ReadPin(JoystickUp_GPIO_Port, JoystickUp_Pin);
+		  const uint8_t joystickDown = HAL_GPIO_ReadPin(JoystickDown_GPIO_Port, JoystickDown_Pin);
+		  const uint8_t joystickLeft = HAL_GPIO_ReadPin(JoystickLeft_GPIO_Port, JoystickLeft_Pin);
+		  const uint8_t joystickRight = HAL_GPIO_ReadPin(JoystickRight_GPIO_Port, JoystickRight_Pin);
 
 	//	  transmitStringUART("Up = %d | Down = %d | Left = %d | Right = %d \r\n", joystickUp, joystickDown, joystickLeft, joystickRight);
 
 
 		  if (!joystickLeft) {
-			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
-			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 1);
+//			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
+//			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 1);
+			  HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
+			  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 1);
 			  posX += 1;
 			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else if (!joystickRight) {
-			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 1);
-			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+//			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 1);
+//			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+			  HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 1);
+			  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
 			  posX -= 1;
 			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else {
-			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
-			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+//			  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
+//			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+			  HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
+			  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
 		  }
 
 		  if (!joystickUp) {
-			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 1);
-			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 1);
+//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+			  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 1);
+			  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 			  posY -= 1;
 			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else if (!joystickDown) {
-			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
-			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 1);
+//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
+//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 1);
+			  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 0);
+			  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 1);
 			  posY += 1;
 			  transmitStringUART("Position (%.1f, %.1f)\r\n", posX, posY);
 		  }
 		  else {
-			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
-			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
+//			  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+			  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 0);
+			  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 		  }
 //		  transmitStringUART("Position (%d, %d)\r\n", posX, posY);
 		  continue;
@@ -268,33 +281,46 @@ int main(void)
 	  else if (STATE == DEPOSIT){
 		  transmitStringUART("Hello from Deposit state: STOP`");
 
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
-		  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
-		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
-		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, 0);
+//		  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, 0);
+//		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, 0);
+//		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, 0);
+		  HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
+		  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
+		  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 0);
+		  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 
+		  // Move Z
+//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_SET);
+//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 1);
+		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
 
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_RESET);
+		  HAL_Delay(4000);
 
-		  HAL_Delay(4500);
+//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(Claw_GPIO_Port, Claw_Pin, 1);
 
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, GPIO_PIN_SET);
+//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_RESET);
+//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
+		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 1);
 
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_SET);
-
-		  HAL_Delay(6500);
+		  HAL_Delay(4200);
 
 		  //Positioning
 		  home();
 
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_RESET);
+//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_RESET);
+//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
+		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
 
+//		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(Claw_GPIO_Port, Claw_Pin, 0);
 
-		  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, GPIO_PIN_RESET);
 		  STATE = IDLE;
+
 		  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
 	  }
   }
