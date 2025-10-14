@@ -48,10 +48,7 @@ const uint8_t WAIT_COIN_TIME_LIMIT = 10;
 const uint8_t WAIT_GAME_TIME_STATE = 30;
 uint8_t currentCoinAmount = 0;
 uint8_t STATE = IDLE;
-
-
-static float posX = 0;
-static float posY = 0;
+int timeCount = 0;
 
 /* USER CODE END PD */
 
@@ -102,8 +99,22 @@ void home() {
 //
 //	  posX = 0.0f;
 //	  posY = 0.0f;
+
+//	  HAL_GPIO_WritePin(Claw_GPIO_Port, Claw_Pin, 1);
+//
+//	  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
+//	  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
+	while (HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin)) {
+//		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
+		HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 1);
+		HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
+		HAL_Delay(10);
+	}
+	HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
+	HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
+
 	while (HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin)) {
-		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
+//		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
 		HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 1);
 		HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 		HAL_Delay(10);
@@ -113,16 +124,8 @@ void home() {
 	HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 0);
 	HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 
-	while (HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin)) {
-		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
-		HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 1);
-		HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
-		HAL_Delay(10);
-	}
-	HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
-	HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
 
-	transmitStringUART("Homing Complete");
+	transmitStringUART("Homing Complete\r\n");
 
 }
 
@@ -205,12 +208,8 @@ int main(void)
 
 //	  transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
 	  if (HAL_GPIO_ReadPin(Btn_GPIO_Port, Btn_Pin) == 0) {
-		  if (STATE == WAIT_CONFIRM) {
-			  STATE = GAME;
-			  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
-			  playBuzzer(100);
-		  }
-		  else if (STATE == GAME) {
+		  if (STATE == GAME) {
+			  timeCount = 0;
 			  STATE = DEPOSIT;
 			  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
 			  playRefereeBuzzer();
@@ -242,6 +241,7 @@ int main(void)
 			  currentCoinAmount = 0;
 			  __HAL_TIM_SET_COUNTER(&htim2, 0);
 
+			  timeCount = 0;
 			  STATE = GAME;
 			  transmitStringUART("State changed to %s\r\n", stateNames[STATE]);
 
@@ -284,40 +284,48 @@ int main(void)
 		  }
 	  }
 	  else if (STATE == DEPOSIT){
-		  transmitStringUART("Hello from Deposit state: STOP`");
+		  transmitStringUART("Hello from Deposit state: STOP All\r\n");
 
 		  HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
 		  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 
+
+		  transmitStringUART("Hello from Deposit state: Moving Z Motor Down\r\n");
 		  // Move Z Down
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 1);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
 
-		  HAL_Delay(4000);
+		  HAL_Delay(3500);
 
+		  transmitStringUART("Hello from Deposit state: Claw active\r\n");
 		  // Claw
 		  HAL_GPIO_WritePin(Claw_GPIO_Port, Claw_Pin, 1);
+		  HAL_Delay(500);
 
+		  transmitStringUART("Hello from Deposit state: Moving Z Motor Up\r\n");
 		  // Move Z Up
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 1);
 
-		  HAL_Delay(3000);
+		  HAL_Delay(4000);
 
+		  transmitStringUART("Hello from Deposit state: Stopping Z Motor\r\n");
 		  // Stop Z
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
 
 		  HAL_Delay(500);
 
+		  transmitStringUART("Hello from Deposit state: Going to home\r\n");
 		  //Positioning
 		  home();
 
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
 
+		  transmitStringUART("Hello from Deposit state: Release the claw\r\n");
 		  HAL_GPIO_WritePin(Claw_GPIO_Port, Claw_Pin, 0);
 
 		  STATE = IDLE;
@@ -427,7 +435,7 @@ void playRefereeBuzzer(){
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-	static int timeCount = 0;
+
 	if (htim -> Instance == TIM2){
 		if (STATE == WAIT_COIN) {
 			timeCount++;

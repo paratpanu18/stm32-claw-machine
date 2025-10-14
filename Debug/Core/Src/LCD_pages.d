@@ -32,7 +32,8 @@ Core/Src/LCD_pages.o: ../Core/Src/LCD_pages.c ../Core/Inc/LCD_pages.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_tim_ex.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart_ex.h \
- ../Core/Inc/state.h ../Core/Inc/usart.h ../Core/Inc/main.h
+ ../Core/Inc/state.h ../Core/Inc/usart.h ../Core/Inc/main.h \
+ ../Core/Inc/state.h
 ../Core/Inc/LCD_pages.h:
 ../Core/Inc/ili9341.h:
 ../Core/Inc/ili9341_fonts.h:
@@ -71,3 +72,4 @@ Core/Src/LCD_pages.o: ../Core/Src/LCD_pages.c ../Core/Inc/LCD_pages.h \
 ../Core/Inc/state.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/main.h:
+../Core/Inc/state.h:
