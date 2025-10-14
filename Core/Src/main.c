@@ -103,9 +103,10 @@ void home() {
 //	  posX = 0.0f;
 //	  posY = 0.0f;
 	while (HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin)) {
-//		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
+		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
 		HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 1);
 		HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
+		HAL_Delay(10);
 //		if (HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin)) break;
 	}
 
@@ -113,9 +114,10 @@ void home() {
 	HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 
 	while (HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin)) {
-//		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
+		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
 		HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 1);
 		HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
+		HAL_Delay(10);
 	}
 	HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
 	HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
@@ -201,7 +203,7 @@ int main(void)
 
 //	  transmitStringUART("Button: %d\r\n", );
 
-	  transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
+//	  transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
 	  if (HAL_GPIO_ReadPin(Btn_GPIO_Port, Btn_Pin) == 0) {
 		  if (STATE == WAIT_CONFIRM) {
 			  STATE = GAME;
@@ -289,18 +291,26 @@ int main(void)
 		  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 
-		  // Move Z
+		  // Move Z Down
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 1);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
 
 		  HAL_Delay(4000);
 
+		  // Claw
 		  HAL_GPIO_WritePin(Claw_GPIO_Port, Claw_Pin, 1);
 
+		  // Move Z Up
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 1);
 
-		  HAL_Delay(4200);
+		  HAL_Delay(3000);
+
+		  // Stop Z
+		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
+		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
+
+		  HAL_Delay(500);
 
 		  //Positioning
 		  home();
