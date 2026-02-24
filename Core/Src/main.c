@@ -104,7 +104,7 @@ void home() {
 //
 //	  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
 //	  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
-	while (HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin)) {
+	while (HAL_GPIO_ReadPin(CornerX1_GPIO_Port, CornerX1_Pin)) {
 //		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
 		HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 1);
 		HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
@@ -113,7 +113,7 @@ void home() {
 	HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
 	HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
 
-	while (HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin)) {
+	while (HAL_GPIO_ReadPin(CornerY1_GPIO_Port, CornerY1_Pin)) {
 //		transmitStringUART("X = %d Y = %d\r\n", HAL_GPIO_ReadPin(CornerX_GPIO_Port, CornerX_Pin), HAL_GPIO_ReadPin(CornerY_GPIO_Port, CornerY_Pin));
 		HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 1);
 		HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
@@ -218,6 +218,7 @@ int main(void)
 
 
 	  renderPage(STATE);
+//	  renderPage(DEPOSIT);
 
 	  if (STATE == IDLE) {
 		  if (currentCoinAmount != 0) {
@@ -254,14 +255,18 @@ int main(void)
 		  const uint8_t joystickLeft = HAL_GPIO_ReadPin(JoystickLeft_GPIO_Port, JoystickLeft_Pin);
 		  const uint8_t joystickRight = HAL_GPIO_ReadPin(JoystickRight_GPIO_Port, JoystickRight_Pin);
 
+		  const uint8_t x1 = HAL_GPIO_ReadPin(CornerX1_GPIO_Port, CornerX1_Pin);
+		  const uint8_t x2 = HAL_GPIO_ReadPin(CornerX2_GPIO_Port, CornerX2_Pin);
+		  const uint8_t y1 = HAL_GPIO_ReadPin(CornerY1_GPIO_Port, CornerY1_Pin);
+		  const uint8_t y2 = HAL_GPIO_ReadPin(CornerY2_GPIO_Port, CornerY2_Pin);
 	//	  transmitStringUART("Up = %d | Down = %d | Left = %d | Right = %d \r\n", joystickUp, joystickDown, joystickLeft, joystickRight);
 
 
-		  if (!joystickLeft) {
+		  if (!joystickLeft && x2) {
 			  HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 0);
 			  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 1);
 		  }
-		  else if (!joystickRight) {
+		  else if (!joystickRight && x1) {
 			  HAL_GPIO_WritePin(MotorX1_GPIO_Port, MotorX1_Pin, 1);
 			  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
 		  }
@@ -270,11 +275,11 @@ int main(void)
 			  HAL_GPIO_WritePin(MotorX2_GPIO_Port, MotorX2_Pin, 0);
 		  }
 
-		  if (!joystickUp) {
+		  if (!joystickUp && y1) {
 			  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 1);
 			  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 		  }
-		  else if (!joystickDown) {
+		  else if (!joystickDown && y2) {
 			  HAL_GPIO_WritePin(MotorY1_GPIO_Port, MotorY1_Pin, 0);
 			  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 1);
 		  }
@@ -292,26 +297,30 @@ int main(void)
 		  HAL_GPIO_WritePin(MotorY2_GPIO_Port, MotorY2_Pin, 0);
 
 
-		  transmitStringUART("Hello from Deposit state: Moving Z Motor Down\r\n");
+//		  transmitStringUART("Hello from Deposit state: Moving Z Motor Down\r\n");
 		  // Move Z Down
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 1);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
 
-		  HAL_Delay(3500);
+		  HAL_Delay(3350);
 
-		  transmitStringUART("Hello from Deposit state: Claw active\r\n");
+//		  transmitStringUART("Hello from Deposit state: Claw active\r\n");
+
+		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
+		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);
+
 		  // Claw
 		  HAL_GPIO_WritePin(Claw_GPIO_Port, Claw_Pin, 1);
-		  HAL_Delay(500);
+		  HAL_Delay(1000);
 
-		  transmitStringUART("Hello from Deposit state: Moving Z Motor Up\r\n");
+//		  transmitStringUART("Hello from Deposit state: Moving Z Motor Up\r\n");
 		  // Move Z Up
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 1);
 
 		  HAL_Delay(4000);
 
-		  transmitStringUART("Hello from Deposit state: Stopping Z Motor\r\n");
+//		  transmitStringUART("Hello from Deposit state: Stopping Z Motor\r\n");
 		  // Stop Z
 		  HAL_GPIO_WritePin(MotorZ1_GPIO_Port, MotorZ1_Pin, 0);
 		  HAL_GPIO_WritePin(MotorZ2_GPIO_Port, MotorZ2_Pin, 0);

@@ -1,9 +1,9 @@
 ../Core/Src/main.c:79:6:home	3
-../Core/Src/main.c:146:5:main	14
-../Core/Src/main.c:343:6:SystemClock_Config	4
-../Core/Src/main.c:399:6:transmitStringUART	1
-../Core/Src/main.c:410:6:HAL_GPIO_EXTI_Callback	4
-../Core/Src/main.c:423:6:playBuzzer	1
-../Core/Src/main.c:429:6:playRefereeBuzzer	1
-../Core/Src/main.c:437:6:HAL_TIM_PeriodElapsedCallback	6
-../Core/Src/main.c:472:6:Error_Handler	1
+../Core/Src/main.c:146:5:main	18
+../Core/Src/main.c:352:6:SystemClock_Config	4
+../Core/Src/main.c:408:6:transmitStringUART	1
+../Core/Src/main.c:419:6:HAL_GPIO_EXTI_Callback	4
+../Core/Src/main.c:432:6:playBuzzer	1
+../Core/Src/main.c:438:6:playRefereeBuzzer	1
+../Core/Src/main.c:446:6:HAL_TIM_PeriodElapsedCallback	6
+../Core/Src/main.c:481:6:Error_Handler	1

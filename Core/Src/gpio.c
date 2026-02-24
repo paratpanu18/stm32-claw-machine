@@ -114,17 +114,17 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : CornerX_Pin */
-  GPIO_InitStruct.Pin = CornerX_Pin;
+  /*Configure GPIO pins : CornerX2_Pin CornerY2_Pin CornerX1_Pin */
+  GPIO_InitStruct.Pin = CornerX2_Pin|CornerY2_Pin|CornerX1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(CornerX_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : CornerY_Pin */
-  GPIO_InitStruct.Pin = CornerY_Pin;
+  /*Configure GPIO pin : CornerY1_Pin */
+  GPIO_InitStruct.Pin = CornerY1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(CornerY_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(CornerY1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Buzzer_Pin */
   GPIO_InitStruct.Pin = Buzzer_Pin;
